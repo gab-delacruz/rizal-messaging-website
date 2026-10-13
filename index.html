@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Rizal</title>
+    <style>
+    /* 1. Global Box Sizing ensures padding doesn't widen elements */
+    * {
+        box-sizing: border-box;
+    }
+
+    body { 
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+        background-color: #e5ddd5; 
+        margin: 0; 
+        display: flex; 
+        justify-content: center; 
+        height: 100vh; 
+        height: 100dvh; 
+        overflow: hidden; 
+    }
+    
+    .chat-container { 
+        width: 100%; 
+        max-width: 450px; 
+        height: 100%; 
+        background: #ffffff; 
+        display: flex; 
+        flex-direction: column; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+        overflow: hidden; /* Prevents anything from spilling out the sides */
+    }
+    
+    .header { 
+        background: #008069; 
+        color: white; 
+        padding: 15px 20px; 
+        display: flex;
+        align-items: center;
+        font-weight: bold; 
+        font-size: 1.2em; 
+        flex-shrink: 0;
+    }
+    
+    .header-avatar {
+        width: 40px;
+        height: 40px;
+        background-color: #ccc;
+        border-radius: 50%;
+        margin-right: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5em;
+    }
+    
+    .chat-box { 
+        flex: 1; 
+        padding: 20px; 
+        background-color: #e5ddd5;
+        background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); 
+        overflow-y: auto; 
+        display: flex; 
+        flex-direction: column; 
+        gap: 15px; 
+    }
+    
+    .message { 
+        max-width: 80%; 
+        padding: 12px 16px; 
+        border-radius: 18px; 
+        line-height: 1.4; 
+        font-size: 0.95em; 
+        position: relative;
+        word-wrap: break-word;
+    }
+    
+    .rizal { 
+        background: #ffffff; 
+        align-self: flex-start; 
+        border-bottom-left-radius: 4px; 
+        color: #111;
+    }
+    
+    .user { 
+        background: #dcf8c6; 
+        align-self: flex-end; 
+        border-bottom-right-radius: 4px; 
+        color: #111;
+    }
+    
+    .input-area { 
+        padding: 15px; 
+        background: #f0f2f5; 
+        display: flex; 
+        gap: 10px; 
+        flex-shrink: 0;
+        width: 100%;
+    }
+    
+    .custom-select-wrapper {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+}
+
+.custom-select-trigger {
+    padding: 12px;
+    border-radius: 24px;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-size: 0.9em;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+}
+
+.custom-options {
+    display: none; /* Hidden by default */
+    position: absolute;
+    bottom: 110%; /* Pops up above the input box */
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.custom-options.open {
+    display: block; /* Shows when clicked */
+}
+
+.custom-option {
+    padding: 12px;
+    font-size: 0.9em;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    word-wrap: break-word; /* Forces the long questions to wrap */
+    line-height: 1.3;
+}
+
+.custom-option:last-child {
+    border-bottom: none;
+}
+
+.custom-option:hover {
+    background-color: #f0f2f5;
+}
+    
+    button { 
+        background: #008069; 
+        color: white; 
+        border: none; 
+        padding: 0 20px; 
+        border-radius: 24px; 
+        cursor: pointer; 
+        font-weight: bold; 
+        flex-shrink: 0; /* 3. CRITICAL: Protects the button from being pushed out */
+    }
+    
+    button:hover { 
+        background: #015c4b; 
+    }
+    
+    .typing-indicator {
+        font-size: 0.8em;
+        color: #888;
+        align-self: flex-start;
+        display: none;
+        margin-left: 10px;
+    }
+</style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="header">
+            <div class="header-avatar">🎩</div>
+            J. Rizal
+        </div>
+        
+        <div class="chat-box" id="chat-box">
+            <!-- Initial Message from Rizal -->
+            <div class="message rizal">
+                Sup! It's Pepe. I know it's wild, but I'm here. I've seen the memes you guys make about me. Ask me anything about my life, my books, or my choices. Let's keep it real.
+            </div>
+            <div class="typing-indicator" id="typing">J. Rizal is typing...</div>
+        </div>
+
+        <div class="input-area">
+    <!-- Custom Dropdown -->
+    <div class="custom-select-wrapper">
+        <div class="custom-select-trigger" id="select-trigger">Select a message to send...</div>
+        <div class="custom-options" id="custom-options">
+            <div class="custom-option" data-value="q1">Dr. Rizal, why do you believe that the youth are the hope of the country?</div>
+            <div class="custom-option" data-value="q2">Dr. Rizal, what can ordinary citizens do when they feel powerless to change society?</div>
+            <div class="custom-option" data-value="q3">Dr. Rizal, what advice do you have for the youth of today regarding education and self-improvement?</div>
+            <div class="custom-option" data-value="q4">Dr. Rizal, is studying hard enough, or do we need to do more with our education?</div>
+            <div class="custom-option" data-value="q5">Dr. Rizal, how do we respond when older generations call us lazy or say we complain too much?</div>
+            <div class="custom-option" data-value="q6">Dr. Rizal, how do we respond when older generations call us lazy or say we complain too much?</div>
+        </div>
+    </div>
+    
+    <button onclick="sendMessage()">Send</button>
+</div>
+    </div>
+
+    <script>
+        // Keep your existing rizalResponses dictionary here
+const rizalResponses = {
+    q1: `"Fair hope of my fatherland!" These are the words I used in my poem A la Juventud Filipina (To the Philippine Youth), which I wrote in 1879. I believe that the Filipino youth possess great talents and abilities that can help our country achieve a better future.<br><br>I encourage the youth to develop their minds through education, arts, and sciences. As I wrote in my poem, “Come down with pleasing light of art and science to the fight.” I believe that young people should use their knowledge and talents to contribute to the progress of our nation. The future of our country depends on how the youth develop their abilities and use them for the good of our homeland.`,
+    q2: `No single person can carry the weight of an entire nation alone. Transformation happens when individuals refuse to stay passive in the face of injustice. In my letter “To the Young Women of Malolos”, I pointed out that 'ignorance is servitude' and that remaining silent only enables corruption.
+    <br>
+    <br>
+    Start by improving yourself, standing up for what is right in your immediate community, and supporting one another. As I envisioned through the “La Liga Filipina”, true strength lies in unity and mutual assistance among ordinary people working toward a common purpose.`,
+    q3: "I have always maintained that the youth is the fair hope of the Fatherland ('La Juventud Filipina'). Education is the foundation upon which the liberty and dignity of a nation are built. Without light, there is no way; without education, there is no freedom.<br><br>Do not content yourselves with passive learning or blind obedience. As I wrote to the young women of Malolos: 'Ignorance is servitude, because as a man thinks, so he is.' Master languages, history, science, and philosophy, but above all, cultivate moral courage and independent thought. A mind that does not think for itself remains forever enslaved.",
+    q4: "Knowledge is useless if it remains trapped in your mind or is used only for personal wealth. When I was exiled in Dapitan, I didn’t just read books or write letters; I used my scientific background to build a local water system, construct street lighting, and open a school for the local boys. In El Filibusterismo, I warned that God will not aid a people who only complain without taking action. Use your education—whether you are studying the arts, sciences, or engineering—to build tangible solutions that uplift the everyday communities around you.",
+    q5: "I faced those exact same accusations from the Spanish friars during my time. In my essay The Indolence of the Filipinos, I explained that what the colonizers dismissed as \"laziness\" was actually a natural reaction to a corrupt system that exploited workers and stripped away their motivation. Do not let others invalidate your struggles or your calls for change. If your generation is exhausted, it is often because you are navigating a deeply flawed system. The solution is not to accept their insults, but to push for reforms that give every Filipino a fair chance to thrive.",
+    q6: "I had every opportunity to live comfortably in Europe, safe from persecution and surrounded by brilliant minds, but I chose to return home knowing it could cost me my life. In El Filibusterismo, the young student Isagani proudly declares that he would rather suffer in his homeland, fighting for its progress, than live a comfortable but selfish life elsewhere. Traveling, studying, and working abroad are excellent ways to broaden your mind, but never forget where you came from. The motherland is suffering from a social cancer, and she needs your talents to help heal her."
+};
+
+// Variables to track the user's current selection
+let selectedQuestionKey = "";
+let selectedQuestionText = "";
+
+const trigger = document.getElementById("select-trigger");
+const optionsContainer = document.getElementById("custom-options");
+const options = document.querySelectorAll(".custom-option");
+
+// Toggle the dropdown open/close when the trigger is clicked
+trigger.addEventListener("click", () => {
+    optionsContainer.classList.toggle("open");
+});
+
+// Handle clicking an option
+options.forEach(option => {
+    option.addEventListener("click", function() {
+        selectedQuestionKey = this.getAttribute("data-value");
+        selectedQuestionText = this.textContent;
+        trigger.textContent = selectedQuestionText; // Show selected text in the box
+        optionsContainer.classList.remove("open"); // Close the menu
+    });
+});
+
+// Close the dropdown if the user clicks outside of it
+document.addEventListener("click", (e) => {
+    if (!e.target.closest(".custom-select-wrapper")) {
+        optionsContainer.classList.remove("open");
+    }
+});
+
+    function sendMessage() {
+    // Prevent sending if no valid question is selected
+    if (!selectedQuestionKey) return;
+
+    // CRITICAL FIX: Save the key in a local variable before resetting the dropdown
+    const currentKey = selectedQuestionKey;
+
+    const chatBox = document.getElementById("chat-box");
+    const typingIndicator = document.getElementById("typing");
+
+    // 1. Post the User's Message using the text saved from the custom dropdown
+    const userMessageDiv = document.createElement("div");
+    userMessageDiv.className = "message user";
+    userMessageDiv.textContent = selectedQuestionText;
+    chatBox.insertBefore(userMessageDiv, typingIndicator);
+
+    // 2. Reset the custom dropdown
+    selectedQuestionKey = "";
+    selectedQuestionText = "";
+    document.getElementById("select-trigger").textContent = "Select a message to send...";
+
+    // 3. Scroll to bottom
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // 4. Show typing indicator
+    typingIndicator.style.display = "block";
+
+    // 5. Simulate Rizal typing
+    setTimeout(() => {
+        typingIndicator.style.display = "none";
+        
+        const rizalMessageDiv = document.createElement("div");
+        rizalMessageDiv.className = "message rizal";
+        
+        // Use the saved 'currentKey' variable here so it doesn't return undefined
+        rizalMessageDiv.innerHTML = rizalResponses[currentKey]; 
+        
+        chatBox.insertBefore(rizalMessageDiv, typingIndicator);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }, 1500);
+}
+
+    </script>
+</body>
+</html>
